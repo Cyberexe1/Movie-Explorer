@@ -29,6 +29,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Allow debug and test pages for testing
+  if (pathname === '/debug' || pathname === '/test-movies') {
+    return NextResponse.next()
+  }
+
   // If user is not authenticated and trying to access protected routes
   if (!isAuthenticated && isProtectedRoute(pathname)) {
     return NextResponse.redirect(new URL('/landing', req.url))
