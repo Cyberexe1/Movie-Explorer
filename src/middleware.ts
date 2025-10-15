@@ -17,11 +17,15 @@ export async function middleware(req: NextRequest) {
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const isAuthenticated = !!token
 
+  console.log('Middleware:', { pathname, isAuthenticated, hasToken: !!token })
+
   // Handle root path specifically
   if (pathname === '/') {
     if (!isAuthenticated) {
+      console.log('Redirecting to landing - not authenticated')
       return NextResponse.redirect(new URL('/landing', req.url))
     }
+    console.log('Allowing access to root - authenticated')
     return NextResponse.next()
   }
 

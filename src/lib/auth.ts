@@ -10,9 +10,19 @@ interface User {
   createdAt: string
 }
 
-// In-memory user store for demo purposes
-// In production, replace this with a proper database
-let users: User[] = []
+// Demo users for testing (in production, use a proper database)
+const demoUsers: User[] = [
+  {
+    id: 'demo-user-1',
+    name: 'Demo User',
+    email: 'demo@example.com',
+    password: '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj/VcSAg/9qK', // password: demo123
+    createdAt: new Date().toISOString(),
+  }
+]
+
+// In-memory user store for demo purposes (gets reset on each deployment)
+let users: User[] = [...demoUsers]
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -25,6 +35,12 @@ export const authOptions: NextAuthOptions = {
         action: { label: 'Action', type: 'text' }, // 'login' or 'register'
       },
       async authorize(credentials) {
+        console.log('NextAuth authorize called with:', {
+          email: credentials?.email,
+          action: credentials?.action,
+          usersCount: users.length
+        })
+
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email and password are required')
         }

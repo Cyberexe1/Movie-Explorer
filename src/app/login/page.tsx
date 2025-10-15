@@ -190,13 +190,28 @@ export default function LoginPage() {
               <Sparkles className="w-5 h-5 text-blue-500" />
             </div>
             <div>
-              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">
-                Demo Information
+              <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">
+                Demo Account
               </h3>
-              <p className="text-xs text-blue-600 dark:text-blue-300 leading-relaxed">
-                Create a new account to get started. Your data is stored locally for this demo. 
-                In a production environment, this would use a secure database.
-              </p>
+              <div className="text-xs text-blue-600 dark:text-blue-300 space-y-2">
+                <div className="space-y-1">
+                  <p><strong>Email:</strong> demo@example.com</p>
+                  <p><strong>Password:</strong> demo123</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('demo@example.com')
+                    setPassword('demo123')
+                  }}
+                  className="inline-flex items-center px-3 py-1 bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-200 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors text-xs font-medium"
+                >
+                  Fill Demo Credentials
+                </button>
+                <p className="text-blue-500 dark:text-blue-400">
+                  Use these credentials to test the app, or create your own account.
+                </p>
+              </div>
             </div>
           </div>
         </div>
