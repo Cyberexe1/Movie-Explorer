@@ -3,13 +3,24 @@ import { NextResponse } from 'next/server'
 
 export default withAuth(
   function middleware(req) {
-    // If user is not authenticated and trying to access protected routes
-    if (!req.nextauth.token && isProtectedRoute(req.nextUrl.pathname)) {
-      return NextResponse.redirect(new URL('/login', req.url))
+    const { pathname } = req.nextUrl
+    const isAuthenticated = !!req.nextauth.token
+
+    // Handle root path specifically
+    if (pathname === '/') {
+      if (!isAuthenticated) {
+        return NextResponse.redirect(new URL('/landing', req.url))
+      }
+      return NextResponse.next()
     }
 
-    // If user is authenticated and trying to access auth pages, redirect to home
-    if (req.nextauth.token && isAuthRoute(req.nextUrl.pathname)) {
+    // If user is not authenticated and trying to access protected routes
+    if (!isAuthenticated && isProtectedRoute(pathname)) {
+      return NextResponse.redirect(new URL('/landing', req.url))
+    }
+
+    // If user is authenticated and trying to access auth/landing pages, redirect to home
+    if (isAuthenticated && (isAuthRoute(pathname) || pathname === '/landing')) {
       return NextResponse.redirect(new URL('/', req.url))
     }
 
@@ -18,13 +29,20 @@ export default withAuth(
   {
     callbacks: {
       authorized: ({ token, req }) => {
-        // Allow access to public routes
-        if (isPublicRoute(req.nextUrl.pathname)) {
+        const { pathname } = req.nextUrl
+        
+        // Always allow public routes
+        if (isPublicRoute(pathname)) {
+          return true
+        }
+        
+        // For root path, let middleware handle the redirect
+        if (pathname === '/') {
           return true
         }
         
         // For protected routes, require authentication
-        if (isProtectedRoute(req.nextUrl.pathname)) {
+        if (isProtectedRoute(pathname)) {
           return !!token
         }
         
@@ -37,6 +55,7 @@ export default withAuth(
 
 function isPublicRoute(pathname: string): boolean {
   const publicRoutes = [
+    '/landing',
     '/login',
     '/register',
     '/api/auth',
@@ -55,6 +74,9 @@ function isProtectedRoute(pathname: string): boolean {
     '/favorites',
     '/search',
   ]
+  
+  // Don't protect landing page
+  if (pathname === '/landing') return false
   
   return protectedRoutes.some(route => 
     pathname === route || pathname.startsWith(route + '/')

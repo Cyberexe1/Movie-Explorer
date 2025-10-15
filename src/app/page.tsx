@@ -31,11 +31,20 @@ export default function HomePage() {
     sortBy: 'popularity.desc'
   })
 
+  // Handle authentication redirect
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      router.push('/login')
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.replace('/landing')
+        return
+      }
     }
   }, [isAuthenticated, authLoading, router])
+
+  // Don't render anything if not authenticated
+  if (!authLoading && !isAuthenticated) {
+    return null
+  }
 
   useEffect(() => {
     if (isAuthenticated) {
