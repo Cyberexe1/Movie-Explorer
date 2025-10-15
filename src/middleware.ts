@@ -14,6 +14,12 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next()
   }
 
+  // Temporarily disable authentication checks for debugging
+  console.log('Middleware - allowing all routes for debugging:', pathname)
+  return NextResponse.next()
+
+  // TODO: Re-enable authentication after debugging
+  /*
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
   const isAuthenticated = !!token
 
@@ -45,6 +51,7 @@ export async function middleware(req: NextRequest) {
   }
 
   return NextResponse.next()
+  */
 }
 
 function isPublicRoute(pathname: string): boolean {

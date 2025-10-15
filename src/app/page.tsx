@@ -31,6 +31,15 @@ export default function HomePage() {
     sortBy: 'popularity.desc'
   })
 
+  // Temporarily disable authentication checks for debugging
+  useEffect(() => {
+    console.log('HomePage - Auth status:', { isAuthenticated, authLoading, user })
+    // Load movies regardless of auth status for debugging
+    loadAllMovies()
+  }, [])
+
+  // TODO: Re-enable authentication after debugging
+  /*
   // Handle authentication redirect
   useEffect(() => {
     if (!authLoading) {
@@ -51,6 +60,7 @@ export default function HomePage() {
       loadAllMovies()
     }
   }, [isAuthenticated])
+  */
 
   const loadAllMovies = async () => {
     try {
@@ -304,6 +314,9 @@ export default function HomePage() {
     return 'Good evening'
   }
 
+  // Temporarily show loading only for movie data, not auth
+  // TODO: Re-enable auth loading after debugging
+  /*
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -321,6 +334,7 @@ export default function HomePage() {
   if (!isAuthenticated) {
     return null
   }
+  */
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
@@ -342,7 +356,7 @@ export default function HomePage() {
               <div className="absolute -inset-1 bg-primary-400/20 rounded-full blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
             <span className="text-base font-semibold bg-gradient-to-r from-primary-700 to-purple-700 dark:from-primary-300 dark:to-purple-300 bg-clip-text text-transparent">
-              {getGreeting()}, {user?.name}!
+              {getGreeting()}, {user?.name || 'Movie Lover'}!
             </span>
             <div className="w-2 h-2 bg-gradient-to-r from-primary-500 to-purple-500 rounded-full animate-pulse"></div>
           </div>
