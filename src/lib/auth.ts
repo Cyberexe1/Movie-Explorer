@@ -1,8 +1,6 @@
 import type { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
-import { readFileSync, writeFileSync, existsSync } from 'fs'
-import { join } from 'path'
 
 interface User {
   id: string
@@ -11,6 +9,10 @@ interface User {
   password: string
   createdAt: string
 }
+
+// In-memory user store for demo purposes
+// In production, replace this with a proper database
+let users: User[] = []
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,20 +31,10 @@ export const authOptions: NextAuthOptions = {
 
         const { email, password, name, action } = credentials
 
-        // Get users from storage (in production, this would be a database query)
-        let users: User[] = []
         try {
-          // For server-side, we'll use a simple file-based store
-          // In production, replace this with actual database operations
-          const usersFile = join(process.cwd(), 'users.json')
-          
-          if (existsSync(usersFile)) {
-            users = JSON.parse(readFileSync(usersFile, 'utf8'))
-          }
-
           if (action === 'register') {
             // Check if user already exists
-            const existingUser = users.find((user) => user.email === email)
+            const existingUser = users.find((user) => user.email === email.toLowerCase())
             if (existingUser) {
               throw new Error('User with this email already exists')
             }
@@ -68,9 +60,6 @@ export const authOptions: NextAuthOptions = {
             }
 
             users.push(newUser)
-            
-            // Save users (in production, save to database)
-            writeFileSync(usersFile, JSON.stringify(users, null, 2))
 
             return {
               id: newUser.id,

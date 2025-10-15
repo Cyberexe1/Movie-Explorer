@@ -2,8 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
-import { useRouter, usePathname } from 'next/navigation'
-import { User, AuthState } from './types'
+import { usePathname } from 'next/navigation'
+import { AuthState } from './types'
 import { SessionStorage } from './session-storage'
 
 interface AuthContextType extends AuthState {
@@ -130,8 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Clear session storage before signing out
       SessionStorage.clearSessionData()
-      
-      await signOut({ 
+
+      await signOut({
         redirect: false,
         callbackUrl: '/login'
       })

@@ -1,8 +1,7 @@
 {
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/"
+    "functions": {
+        "src/app/api/**/*.ts": {
+            "maxDuration": 10
         }
-    ]
+    }
 }
