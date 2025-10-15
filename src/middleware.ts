@@ -1,57 +1,42 @@
-import { withAuth } from 'next-auth/middleware'
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl
-    const isAuthenticated = !!req.nextauth.token
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl
+  
+  // Skip middleware for API routes, static files, and NextAuth
+  if (
+    pathname.startsWith('/api/') ||
+    pathname.startsWith('/_next/') ||
+    pathname.startsWith('/favicon.ico') ||
+    pathname.startsWith('/placeholder-movie.svg')
+  ) {
+    return NextResponse.next()
+  }
 
-    // Handle root path specifically
-    if (pathname === '/') {
-      if (!isAuthenticated) {
-        return NextResponse.redirect(new URL('/landing', req.url))
-      }
-      return NextResponse.next()
-    }
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const isAuthenticated = !!token
 
-    // If user is not authenticated and trying to access protected routes
-    if (!isAuthenticated && isProtectedRoute(pathname)) {
+  // Handle root path specifically
+  if (pathname === '/') {
+    if (!isAuthenticated) {
       return NextResponse.redirect(new URL('/landing', req.url))
     }
-
-    // If user is authenticated and trying to access auth/landing pages, redirect to home
-    if (isAuthenticated && (isAuthRoute(pathname) || pathname === '/landing')) {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-
     return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl
-        
-        // Always allow public routes
-        if (isPublicRoute(pathname)) {
-          return true
-        }
-        
-        // For root path, let middleware handle the redirect
-        if (pathname === '/') {
-          return true
-        }
-        
-        // For protected routes, require authentication
-        if (isProtectedRoute(pathname)) {
-          return !!token
-        }
-        
-        // Default: allow access
-        return true
-      },
-    },
   }
-)
+
+  // If user is not authenticated and trying to access protected routes
+  if (!isAuthenticated && isProtectedRoute(pathname)) {
+    return NextResponse.redirect(new URL('/landing', req.url))
+  }
+
+  // If user is authenticated and trying to access auth/landing pages, redirect to home
+  if (isAuthenticated && (isAuthRoute(pathname) || pathname === '/landing')) {
+    return NextResponse.redirect(new URL('/', req.url))
+  }
+
+  return NextResponse.next()
+}
 
 function isPublicRoute(pathname: string): boolean {
   const publicRoutes = [
@@ -91,12 +76,12 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api/auth (NextAuth.js API routes)
+     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (images, etc.)
      */
-    '/((?!api/auth|_next/static|_next/image|favicon.ico|placeholder-movie.svg).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|placeholder-movie.svg).*)',
   ],
 }

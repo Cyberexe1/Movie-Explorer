@@ -69,13 +69,13 @@ export const authOptions: NextAuthOptions = {
           } else {
             // Login
             const user = users.find((user) => user.email === email.toLowerCase())
-            
+
             if (!user) {
               throw new Error('No account found with this email')
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.password)
-            
+
             if (!isPasswordValid) {
               throw new Error('Invalid password')
             }
@@ -141,4 +141,5 @@ export const authOptions: NextAuthOptions = {
   },
   debug: process.env.NODE_ENV === 'development',
   secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: process.env.NODE_ENV === 'production',
 }
